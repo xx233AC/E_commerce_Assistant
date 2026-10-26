@@ -1,0 +1,7793 @@
+{
+  "POST /auth/login": {
+    "id": "post_auth_login",
+    "method": "POST",
+    "path": "/auth/login",
+    "title": "登录",
+    "roles": [],
+    "permission": "public",
+    "origin": "原文",
+    "parameters": [],
+    "body": "LoginRequest",
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /auth/me": {
+    "id": "get_auth_me",
+    "method": "GET",
+    "path": "/auth/me",
+    "title": "当前用户",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "auth:read",
+    "origin": "原文",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /auth/logout": {
+    "id": "post_auth_logout",
+    "method": "POST",
+    "path": "/auth/logout",
+    "title": "退出并撤销当前会话",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "auth:logout",
+    "origin": "补充",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /users": {
+    "id": "get_users",
+    "method": "GET",
+    "path": "/users",
+    "title": "用户列表",
+    "roles": [
+      "admin"
+    ],
+    "permission": "users:manage",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "active",
+            "disabled"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "role",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "admin",
+            "operator",
+            "viewer"
+          ]
+        },
+        "description": "role"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /users": {
+    "id": "post_users",
+    "method": "POST",
+    "path": "/users",
+    "title": "创建用户",
+    "roles": [
+      "admin"
+    ],
+    "permission": "users:manage",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "UserCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /users/{user_id}": {
+    "id": "patch_users_user_id",
+    "method": "PATCH",
+    "path": "/users/{user_id}",
+    "title": "修改用户或重置密码",
+    "roles": [
+      "admin"
+    ],
+    "permission": "users:manage",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "user_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "UserPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /stores": {
+    "id": "get_stores",
+    "method": "GET",
+    "path": "/stores",
+    "title": "店铺列表（最多一条）",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "stores:read",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /stores": {
+    "id": "post_stores",
+    "method": "POST",
+    "path": "/stores",
+    "title": "创建唯一店铺",
+    "roles": [
+      "admin"
+    ],
+    "permission": "stores:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "StoreCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /stores/{store_id}": {
+    "id": "get_stores_store_id",
+    "method": "GET",
+    "path": "/stores/{store_id}",
+    "title": "店铺详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "stores:read",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /stores/{store_id}": {
+    "id": "patch_stores_store_id",
+    "method": "PATCH",
+    "path": "/stores/{store_id}",
+    "title": "修改店铺",
+    "roles": [
+      "admin"
+    ],
+    "permission": "stores:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "StorePatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /stores/{store_id}/platform-accounts": {
+    "id": "get_stores_store_id_platform_accounts",
+    "method": "GET",
+    "path": "/stores/{store_id}/platform-accounts",
+    "title": "平台账号占位列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "stores:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /stores/{store_id}/platform-accounts": {
+    "id": "post_stores_store_id_platform_accounts",
+    "method": "POST",
+    "path": "/stores/{store_id}/platform-accounts",
+    "title": "创建平台账号占位",
+    "roles": [
+      "admin"
+    ],
+    "permission": "stores:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "PlatformAccountCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /stores/{store_id}/platform-accounts/{account_id}/authorization/start": {
+    "id": "post_stores_store_id_platform_accounts_account_id_authorization_start",
+    "method": "POST",
+    "path": "/stores/{store_id}/platform-accounts/{account_id}/authorization/start",
+    "title": "创建授权占位会话",
+    "roles": [
+      "admin"
+    ],
+    "permission": "stores:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "AuthorizationStart",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /stores/{store_id}/platform-accounts/{account_id}/authorization/callback-placeholder": {
+    "id": "post_stores_store_id_platform_accounts_account_id_authorization_callback_placeholder",
+    "method": "POST",
+    "path": "/stores/{store_id}/platform-accounts/{account_id}/authorization/callback-placeholder",
+    "title": "保存授权占位元数据",
+    "roles": [
+      "admin"
+    ],
+    "permission": "stores:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "AuthorizationCallback",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /stores/{store_id}/inventory-advice/generate": {
+    "id": "post_stores_store_id_inventory_advice_generate",
+    "method": "POST",
+    "path": "/stores/{store_id}/inventory-advice/generate",
+    "title": "生成规则型库存建议",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "inventory:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "InventoryAdviceRequest",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /stores/{store_id}/inventory": {
+    "id": "get_stores_store_id_inventory",
+    "method": "GET",
+    "path": "/stores/{store_id}/inventory",
+    "title": "店铺库存查询",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "inventory:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "low_stock_only",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        },
+        "description": "low_stock_only"
+      },
+      {
+        "name": "product_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/dashboard": {
+    "id": "get_workspace_dashboard",
+    "method": "GET",
+    "path": "/workspace/dashboard",
+    "title": "工作台统计",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "workspace:read",
+    "origin": "补充",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products": {
+    "id": "get_products",
+    "method": "GET",
+    "path": "/products",
+    "title": "商品列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "products:read",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "store_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "platform",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "v1平台代码；新增代码通过契约版本扩展，不连接平台账号",
+          "enum": [
+            "taobao",
+            "tmall",
+            "jd",
+            "pdd",
+            "douyin",
+            "kuaishou",
+            "other"
+          ]
+        },
+        "description": "v1平台代码；新增代码通过契约版本扩展，不连接平台账号"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "active",
+            "inactive"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "keyword",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "description": "keyword"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products": {
+    "id": "post_products",
+    "method": "POST",
+    "path": "/products",
+    "title": "创建商品",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "products:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ProductCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}": {
+    "id": "get_products_product_id",
+    "method": "GET",
+    "path": "/products/{product_id}",
+    "title": "商品详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "products:read",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}": {
+    "id": "patch_products_product_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}",
+    "title": "更新商品",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "products:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "ProductPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/platform-mappings": {
+    "id": "get_products_product_id_platform_mappings",
+    "method": "GET",
+    "path": "/products/{product_id}/platform-mappings",
+    "title": "平台映射列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "products:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/platform-mappings": {
+    "id": "post_products_product_id_platform_mappings",
+    "method": "POST",
+    "path": "/products/{product_id}/platform-mappings",
+    "title": "创建平台映射",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "products:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "PlatformMappingCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/platform-mappings/{mapping_id}": {
+    "id": "patch_products_product_id_platform_mappings_mapping_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/platform-mappings/{mapping_id}",
+    "title": "更新平台映射",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "products:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "mapping_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "PlatformMappingPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/skus": {
+    "id": "get_products_product_id_skus",
+    "method": "GET",
+    "path": "/products/{product_id}/skus",
+    "title": "SKU列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "inventory:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/skus": {
+    "id": "post_products_product_id_skus",
+    "method": "POST",
+    "path": "/products/{product_id}/skus",
+    "title": "创建SKU",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "inventory:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "SkuCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/skus/{sku_id}": {
+    "id": "patch_products_product_id_skus_sku_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/skus/{sku_id}",
+    "title": "更新SKU",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "inventory:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "sku_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "SkuPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/skus/{sku_id}/inventory": {
+    "id": "get_products_product_id_skus_sku_id_inventory",
+    "method": "GET",
+    "path": "/products/{product_id}/skus/{sku_id}/inventory",
+    "title": "SKU库存",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "inventory:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "sku_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/skus/{sku_id}/inventory": {
+    "id": "patch_products_product_id_skus_sku_id_inventory",
+    "method": "PATCH",
+    "path": "/products/{product_id}/skus/{sku_id}/inventory",
+    "title": "修改预警阈值和库位",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "inventory:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "sku_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "InventoryPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/skus/{sku_id}/inventory/adjustments": {
+    "id": "post_products_product_id_skus_sku_id_inventory_adjustments",
+    "method": "POST",
+    "path": "/products/{product_id}/skus/{sku_id}/inventory/adjustments",
+    "title": "调整库存并写流水",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "inventory:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "sku_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "InventoryAdjustment",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/inventory-movements": {
+    "id": "get_products_product_id_inventory_movements",
+    "method": "GET",
+    "path": "/products/{product_id}/inventory-movements",
+    "title": "库存流水",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "inventory:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "sku_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "start_at",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai",
+          "format": "date-time"
+        },
+        "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai"
+      },
+      {
+        "name": "end_at",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai",
+          "format": "date-time"
+        },
+        "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/competitors": {
+    "id": "get_products_product_id_competitors",
+    "method": "GET",
+    "path": "/products/{product_id}/competitors",
+    "title": "竞品列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "competitors:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "active",
+            "archived"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/competitors": {
+    "id": "post_products_product_id_competitors",
+    "method": "POST",
+    "path": "/products/{product_id}/competitors",
+    "title": "录入竞品",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "competitors:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "CompetitorCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/competitors/{competitor_id}": {
+    "id": "patch_products_product_id_competitors_competitor_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/competitors/{competitor_id}",
+    "title": "编辑或归档竞品",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "competitors:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "competitor_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "CompetitorPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/competitors/import-url-tasks": {
+    "id": "post_products_product_id_competitors_import_url_tasks",
+    "method": "POST",
+    "path": "/products/{product_id}/competitors/import-url-tasks",
+    "title": "创建待运行的公开链接解析任务",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "competitors:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ParseTaskCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/link-parse-tasks": {
+    "id": "get_products_product_id_link_parse_tasks",
+    "method": "GET",
+    "path": "/products/{product_id}/link-parse-tasks",
+    "title": "公开链接解析任务列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "competitors:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "timeout"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/link-parse-tasks/{task_id}": {
+    "id": "get_products_product_id_link_parse_tasks_task_id",
+    "method": "GET",
+    "path": "/products/{product_id}/link-parse-tasks/{task_id}",
+    "title": "公开链接解析任务详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "competitors:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/link-parse-tasks/{task_id}/run": {
+    "id": "post_products_product_id_link_parse_tasks_task_id_run",
+    "method": "POST",
+    "path": "/products/{product_id}/link-parse-tasks/{task_id}/run",
+    "title": "将链接解析任务入队",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "competitors:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": null,
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/link-parse-tasks/{task_id}/result": {
+    "id": "get_products_product_id_link_parse_tasks_task_id_result",
+    "method": "GET",
+    "path": "/products/{product_id}/link-parse-tasks/{task_id}/result",
+    "title": "查看解析候选结果",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "competitors:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/competitors/{competitor_id}/monitor": {
+    "id": "post_products_product_id_competitors_competitor_id_monitor",
+    "method": "POST",
+    "path": "/products/{product_id}/competitors/{competitor_id}/monitor",
+    "title": "创建竞品监控",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "competitors:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "competitor_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "MonitorCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/competitors/{competitor_id}/monitor": {
+    "id": "get_products_product_id_competitors_competitor_id_monitor",
+    "method": "GET",
+    "path": "/products/{product_id}/competitors/{competitor_id}/monitor",
+    "title": "查看竞品监控",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "competitors:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "competitor_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/competitors/{competitor_id}/monitor": {
+    "id": "patch_products_product_id_competitors_competitor_id_monitor",
+    "method": "PATCH",
+    "path": "/products/{product_id}/competitors/{competitor_id}/monitor",
+    "title": "暂停或修改监控",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "competitors:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "competitor_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "MonitorPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/competitors/{competitor_id}/monitor/snapshots": {
+    "id": "get_products_product_id_competitors_competitor_id_monitor_snapshots",
+    "method": "GET",
+    "path": "/products/{product_id}/competitors/{competitor_id}/monitor/snapshots",
+    "title": "监控快照",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "competitors:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "competitor_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/rounds": {
+    "id": "get_products_product_id_rounds",
+    "method": "GET",
+    "path": "/products/{product_id}/rounds",
+    "title": "运营轮次列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "rounds:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "active",
+            "completed",
+            "cancelled"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/rounds": {
+    "id": "post_products_product_id_rounds",
+    "method": "POST",
+    "path": "/products/{product_id}/rounds",
+    "title": "创建运营轮次",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "rounds:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "RoundCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/rounds/{round_id}": {
+    "id": "get_products_product_id_rounds_round_id",
+    "method": "GET",
+    "path": "/products/{product_id}/rounds/{round_id}",
+    "title": "运营轮次详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "rounds:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/rounds/{round_id}": {
+    "id": "patch_products_product_id_rounds_round_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/rounds/{round_id}",
+    "title": "选定诊断或结束轮次",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "rounds:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "RoundPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/rounds/{round_id}/snapshots": {
+    "id": "get_products_product_id_rounds_round_id_snapshots",
+    "method": "GET",
+    "path": "/products/{product_id}/rounds/{round_id}/snapshots",
+    "title": "轮次输入快照列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "rounds:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/diagnoses/generate": {
+    "id": "post_products_product_id_diagnoses_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/diagnoses/generate",
+    "title": "生成商品诊断",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "diagnoses:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "DiagnosisGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/diagnoses": {
+    "id": "get_products_product_id_diagnoses",
+    "method": "GET",
+    "path": "/products/{product_id}/diagnoses",
+    "title": "诊断列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "diagnoses:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/diagnoses/{diagnosis_id}": {
+    "id": "get_products_product_id_diagnoses_diagnosis_id",
+    "method": "GET",
+    "path": "/products/{product_id}/diagnoses/{diagnosis_id}",
+    "title": "诊断当前版本",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "diagnoses:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "diagnosis_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/diagnoses/{diagnosis_id}": {
+    "id": "patch_products_product_id_diagnoses_diagnosis_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/diagnoses/{diagnosis_id}",
+    "title": "编辑诊断并建立新修订",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "diagnoses:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "diagnosis_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "DiagnosisPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/creative-plans/main-images/generate": {
+    "id": "post_products_product_id_creative_plans_main_images_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/creative-plans/main-images/generate",
+    "title": "生成主图方案",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "creative_plans:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "CreativeGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/creative-plans/video-scripts/generate": {
+    "id": "post_products_product_id_creative_plans_video_scripts_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/creative-plans/video-scripts/generate",
+    "title": "生成视频脚本",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "creative_plans:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "CreativeGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/creative-plans/titles/generate": {
+    "id": "post_products_product_id_creative_plans_titles_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/creative-plans/titles/generate",
+    "title": "生成标题方案",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "creative_plans:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "CreativeGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/creative-plans": {
+    "id": "get_products_product_id_creative_plans",
+    "method": "GET",
+    "path": "/products/{product_id}/creative-plans",
+    "title": "方案列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "creative_plans:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "plan_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "main_image",
+            "video_script",
+            "title"
+          ]
+        },
+        "description": "plan_type"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "selected",
+            "archived"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/creative-plans/{creative_plan_id}": {
+    "id": "get_products_product_id_creative_plans_creative_plan_id",
+    "method": "GET",
+    "path": "/products/{product_id}/creative-plans/{creative_plan_id}",
+    "title": "方案详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "creative_plans:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "creative_plan_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/creative-plans/{creative_plan_id}": {
+    "id": "patch_products_product_id_creative_plans_creative_plan_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/creative-plans/{creative_plan_id}",
+    "title": "编辑方案或切换选择状态",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "creative_plans:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "creative_plan_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "CreativePlanPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/creative-plans/{creative_plan_id}/images/generate": {
+    "id": "post_products_product_id_creative_plans_creative_plan_id_images_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/creative-plans/{creative_plan_id}/images/generate",
+    "title": "创建图片生成任务",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "creative_plans:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "creative_plan_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ImageGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/creative-plans/{creative_plan_id}/videos/generate": {
+    "id": "post_products_product_id_creative_plans_creative_plan_id_videos_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/creative-plans/{creative_plan_id}/videos/generate",
+    "title": "创建视频生成任务",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "creative_plans:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "creative_plan_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "VideoGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/generation-jobs": {
+    "id": "get_products_product_id_generation_jobs",
+    "method": "GET",
+    "path": "/products/{product_id}/generation-jobs",
+    "title": "商品任务列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "jobs:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "job_status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "timeout"
+          ]
+        },
+        "description": "job_status"
+      },
+      {
+        "name": "job_kind",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "diagnosis",
+            "main_image_plan",
+            "video_script",
+            "title_plan",
+            "image",
+            "video",
+            "ad_recommendation",
+            "ad_experiment",
+            "review_report",
+            "public_link_parse",
+            "asset_sync",
+            "timeout_sweep",
+            "competitor_monitor_sweep",
+            "demo_data"
+          ]
+        },
+        "description": "job_kind"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/generation-jobs/{job_id}": {
+    "id": "get_products_product_id_generation_jobs_job_id",
+    "method": "GET",
+    "path": "/products/{product_id}/generation-jobs/{job_id}",
+    "title": "任务详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "jobs:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/generation-jobs/{job_id}/events": {
+    "id": "get_products_product_id_generation_jobs_job_id_events",
+    "method": "GET",
+    "path": "/products/{product_id}/generation-jobs/{job_id}/events",
+    "title": "任务事件时间线",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "jobs:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "after_sequence",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "description": "after_sequence"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/generation-jobs/{job_id}/retry": {
+    "id": "post_products_product_id_generation_jobs_job_id_retry",
+    "method": "POST",
+    "path": "/products/{product_id}/generation-jobs/{job_id}/retry",
+    "title": "手动重试任务",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "jobs:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "JobRetry",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/generation-jobs/{job_id}/cancel": {
+    "id": "post_products_product_id_generation_jobs_job_id_cancel",
+    "method": "POST",
+    "path": "/products/{product_id}/generation-jobs/{job_id}/cancel",
+    "title": "请求取消任务",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "jobs:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "JobCancel",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /files": {
+    "id": "post_files",
+    "method": "POST",
+    "path": "/files",
+    "title": "上传商品素材或导入文件",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "files:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "UploadForm",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "413",
+      "415",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /files/{file_id}": {
+    "id": "get_files_file_id",
+    "method": "GET",
+    "path": "/files/{file_id}",
+    "title": "文件元数据",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "files:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "file_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /files/{file_id}/access-url": {
+    "id": "get_files_file_id_access_url",
+    "method": "GET",
+    "path": "/files/{file_id}/access-url",
+    "title": "获取短期文件访问地址",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "files:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "file_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/assets": {
+    "id": "get_products_product_id_assets",
+    "method": "GET",
+    "path": "/products/{product_id}/assets",
+    "title": "素材列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "assets:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "asset_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "image",
+            "video"
+          ]
+        },
+        "description": "asset_type"
+      },
+      {
+        "name": "review_status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "description": "review_status"
+      },
+      {
+        "name": "creative_plan_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "execution_mode",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "real",
+            "demo"
+          ]
+        },
+        "description": "execution_mode"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/assets": {
+    "id": "post_products_product_id_assets",
+    "method": "POST",
+    "path": "/products/{product_id}/assets",
+    "title": "登记人工上传素材",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "assets:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "AssetCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/assets/{asset_id}": {
+    "id": "get_products_product_id_assets_asset_id",
+    "method": "GET",
+    "path": "/products/{product_id}/assets/{asset_id}",
+    "title": "素材详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "assets:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/assets/{asset_id}": {
+    "id": "patch_products_product_id_assets_asset_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/assets/{asset_id}",
+    "title": "审核或维护素材属性",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "assets:review",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "AssetPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/assets/sync": {
+    "id": "post_products_product_id_assets_sync",
+    "method": "POST",
+    "path": "/products/{product_id}/assets/sync",
+    "title": "补偿同步成功生成任务的素材",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "assets:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "AssetSync",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/creative-plans/{creative_plan_id}/assets": {
+    "id": "patch_products_product_id_creative_plans_creative_plan_id_assets",
+    "method": "PATCH",
+    "path": "/products/{product_id}/creative-plans/{creative_plan_id}/assets",
+    "title": "批量审核方案素材（原文兼容接口）",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "assets:review",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "creative_plan_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "AssetBatchPatch",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/promotion-links/generate": {
+    "id": "post_products_product_id_promotion_links_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/promotion-links/generate",
+    "title": "生成规则型推广链接建议",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "promotion_links:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "PromotionLinkSuggest",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/promotion-links": {
+    "id": "post_products_product_id_promotion_links",
+    "method": "POST",
+    "path": "/products/{product_id}/promotion-links",
+    "title": "创建推广链接",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "promotion_links:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "PromotionLinkCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/promotion-links": {
+    "id": "get_products_product_id_promotion_links",
+    "method": "GET",
+    "path": "/products/{product_id}/promotion-links",
+    "title": "推广链接列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "promotion_links:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "active",
+            "disabled"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/promotion-links/{link_id}": {
+    "id": "get_products_product_id_promotion_links_link_id",
+    "method": "GET",
+    "path": "/products/{product_id}/promotion-links/{link_id}",
+    "title": "推广链接详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "promotion_links:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "link_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/promotion-links/{link_id}": {
+    "id": "patch_products_product_id_promotion_links_link_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/promotion-links/{link_id}",
+    "title": "更新链接名称、场景或启停",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "promotion_links:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "link_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "PromotionLinkPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/promotion-links/{link_id}/stats": {
+    "id": "get_products_product_id_promotion_links_link_id_stats",
+    "method": "GET",
+    "path": "/products/{product_id}/promotion-links/{link_id}/stats",
+    "title": "点击统计",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "promotion_links:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "link_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "start_date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "店铺时区 Asia/Shanghai 下的自然日",
+          "format": "date"
+        },
+        "description": "店铺时区 Asia/Shanghai 下的自然日"
+      },
+      {
+        "name": "end_date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "店铺时区 Asia/Shanghai 下的自然日",
+          "format": "date"
+        },
+        "description": "店铺时区 Asia/Shanghai 下的自然日"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /r/{tracking_code}": {
+    "id": "get_r_tracking_code",
+    "method": "GET",
+    "path": "/r/{tracking_code}",
+    "title": "公开推广跳转",
+    "roles": [],
+    "permission": "public",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "tracking_code",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{16,64}$"
+        },
+        "description": "tracking_code"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "302",
+      "400",
+      "404",
+      "410",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/ad-recommendations/generate": {
+    "id": "post_products_product_id_ad_recommendations_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/ad-recommendations/generate",
+    "title": "生成投放建议",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "ads:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "AdGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/ad-recommendations": {
+    "id": "get_products_product_id_ad_recommendations",
+    "method": "GET",
+    "path": "/products/{product_id}/ad-recommendations",
+    "title": "投放建议列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "ads:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "confirm_status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "confirmed",
+            "rejected"
+          ]
+        },
+        "description": "confirm_status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/ad-recommendations/{recommendation_id}": {
+    "id": "get_products_product_id_ad_recommendations_recommendation_id",
+    "method": "GET",
+    "path": "/products/{product_id}/ad-recommendations/{recommendation_id}",
+    "title": "投放建议详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "ads:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "recommendation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/ad-recommendations/{recommendation_id}": {
+    "id": "patch_products_product_id_ad_recommendations_recommendation_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/ad-recommendations/{recommendation_id}",
+    "title": "编辑投放建议",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "ads:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "recommendation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "AdRecommendationPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/ad-recommendations/{recommendation_id}/confirmation": {
+    "id": "patch_products_product_id_ad_recommendations_recommendation_id_confirmation",
+    "method": "PATCH",
+    "path": "/products/{product_id}/ad-recommendations/{recommendation_id}/confirmation",
+    "title": "确认或驳回投放建议",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "ads:confirm",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "recommendation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "ConfirmationRequest",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/ad-recommendations/{recommendation_id}/confirmations": {
+    "id": "get_products_product_id_ad_recommendations_recommendation_id_confirmations",
+    "method": "GET",
+    "path": "/products/{product_id}/ad-recommendations/{recommendation_id}/confirmations",
+    "title": "建议确认历史",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "ads:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "recommendation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/ad-experiments/generate": {
+    "id": "post_products_product_id_ad_experiments_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/ad-experiments/generate",
+    "title": "生成投放实验草案",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "experiments:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ExperimentGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/ad-experiments": {
+    "id": "get_products_product_id_ad_experiments",
+    "method": "GET",
+    "path": "/products/{product_id}/ad-experiments",
+    "title": "实验列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "experiments:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "experiment_status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "confirmed",
+            "running",
+            "finished",
+            "cancelled"
+          ]
+        },
+        "description": "experiment_status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/ad-experiments/{experiment_id}": {
+    "id": "get_products_product_id_ad_experiments_experiment_id",
+    "method": "GET",
+    "path": "/products/{product_id}/ad-experiments/{experiment_id}",
+    "title": "实验详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "experiments:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "experiment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/ad-experiments/{experiment_id}": {
+    "id": "patch_products_product_id_ad_experiments_experiment_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/ad-experiments/{experiment_id}",
+    "title": "编辑实验草案或更新状态",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "experiments:update",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "experiment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "ExperimentPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/performance-records": {
+    "id": "post_products_product_id_performance_records",
+    "method": "POST",
+    "path": "/products/{product_id}/performance-records",
+    "title": "录入日粒度经营数据",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "performance:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "PerformanceCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/performance-records": {
+    "id": "get_products_product_id_performance_records",
+    "method": "GET",
+    "path": "/products/{product_id}/performance-records",
+    "title": "经营数据列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "performance:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "granularity",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "product_day",
+            "experiment_day"
+          ]
+        },
+        "description": "granularity"
+      },
+      {
+        "name": "experiment_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "店铺时区 Asia/Shanghai 下的自然日",
+          "format": "date"
+        },
+        "description": "店铺时区 Asia/Shanghai 下的自然日"
+      },
+      {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "店铺时区 Asia/Shanghai 下的自然日",
+          "format": "date"
+        },
+        "description": "店铺时区 Asia/Shanghai 下的自然日"
+      },
+      {
+        "name": "include_voided",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        },
+        "description": "include_voided"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/performance-records/{record_id}": {
+    "id": "get_products_product_id_performance_records_record_id",
+    "method": "GET",
+    "path": "/products/{product_id}/performance-records/{record_id}",
+    "title": "经营数据详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "performance:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "record_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/performance-records/{record_id}": {
+    "id": "patch_products_product_id_performance_records_record_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/performance-records/{record_id}",
+    "title": "修正经营数据",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "performance:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "record_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "PerformancePatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/performance-records/{record_id}/void": {
+    "id": "post_products_product_id_performance_records_record_id_void",
+    "method": "POST",
+    "path": "/products/{product_id}/performance-records/{record_id}/void",
+    "title": "作废错误记录",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "performance:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "record_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "VoidRequest",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/performance-summary": {
+    "id": "get_products_product_id_performance_summary",
+    "method": "GET",
+    "path": "/products/{product_id}/performance-summary",
+    "title": "经营指标汇总",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "performance:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "granularity",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "product_day",
+            "experiment_day"
+          ]
+        },
+        "description": "granularity"
+      },
+      {
+        "name": "experiment_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "start_date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "店铺时区 Asia/Shanghai 下的自然日",
+          "format": "date"
+        },
+        "description": "店铺时区 Asia/Shanghai 下的自然日"
+      },
+      {
+        "name": "end_date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "店铺时区 Asia/Shanghai 下的自然日",
+          "format": "date"
+        },
+        "description": "店铺时区 Asia/Shanghai 下的自然日"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/performance-records/import": {
+    "id": "post_products_product_id_performance_records_import",
+    "method": "POST",
+    "path": "/products/{product_id}/performance-records/import",
+    "title": "经营数据导入预览（原文入口）",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "imports:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "PerformanceImportCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /products/{product_id}/review-reports/generate": {
+    "id": "post_products_product_id_review_reports_generate",
+    "method": "POST",
+    "path": "/products/{product_id}/review-reports/generate",
+    "title": "生成复盘报告",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "reviews:write",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ReviewGenerate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/review-reports": {
+    "id": "get_products_product_id_review_reports",
+    "method": "GET",
+    "path": "/products/{product_id}/review-reports",
+    "title": "复盘列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "reviews:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "round_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/review-reports/{report_id}": {
+    "id": "get_products_product_id_review_reports_report_id",
+    "method": "GET",
+    "path": "/products/{product_id}/review-reports/{report_id}",
+    "title": "复盘详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "reviews:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "report_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /products/{product_id}/review-reports/{report_id}": {
+    "id": "patch_products_product_id_review_reports_report_id",
+    "method": "PATCH",
+    "path": "/products/{product_id}/review-reports/{report_id}",
+    "title": "编辑复盘内容",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "reviews:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "report_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "ReviewPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/resource-revisions": {
+    "id": "get_products_product_id_resource_revisions",
+    "method": "GET",
+    "path": "/products/{product_id}/resource-revisions",
+    "title": "查看AI业务对象的修订列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "revisions:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "resource_type",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "diagnosis",
+            "creative_plan",
+            "ad_recommendation",
+            "review_report"
+          ]
+        },
+        "description": "resource_type"
+      },
+      {
+        "name": "resource_id",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /products/{product_id}/resource-revisions/{revision_id}": {
+    "id": "get_products_product_id_resource_revisions_revision_id",
+    "method": "GET",
+    "path": "/products/{product_id}/resource-revisions/{revision_id}",
+    "title": "读取不可变修订",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "revisions:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "revision_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /workspace/imports": {
+    "id": "post_workspace_imports",
+    "method": "POST",
+    "path": "/workspace/imports",
+    "title": "创建导入预览任务",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "imports:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ImportCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/imports": {
+    "id": "get_workspace_imports",
+    "method": "GET",
+    "path": "/workspace/imports",
+    "title": "导入批次列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "import_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "products",
+            "sku_inventory",
+            "performance_records",
+            "platform_mappings"
+          ]
+        },
+        "description": "import_type"
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "validating",
+            "preview_ready",
+            "committing",
+            "succeeded",
+            "partially_succeeded",
+            "failed",
+            "expired"
+          ]
+        },
+        "description": "status"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/imports/{import_id}": {
+    "id": "get_workspace_imports_import_id",
+    "method": "GET",
+    "path": "/workspace/imports/{import_id}",
+    "title": "导入批次详情",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "import_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/imports/{import_id}/preview": {
+    "id": "get_workspace_imports_import_id_preview",
+    "method": "GET",
+    "path": "/workspace/imports/{import_id}/preview",
+    "title": "导入行预览",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "import_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "valid",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        },
+        "description": "valid"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/imports/{import_id}/errors": {
+    "id": "get_workspace_imports_import_id_errors",
+    "method": "GET",
+    "path": "/workspace/imports/{import_id}/errors",
+    "title": "错误行列表",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "import_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "phase",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "preview",
+            "commit"
+          ]
+        },
+        "description": "phase"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /workspace/imports/{import_id}/commit": {
+    "id": "post_workspace_imports_import_id_commit",
+    "method": "POST",
+    "path": "/workspace/imports/{import_id}/commit",
+    "title": "确认导入有效行",
+    "roles": [
+      "admin",
+      "operator"
+    ],
+    "permission": "imports:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "import_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "ImportCommit",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/templates/products": {
+    "id": "get_workspace_templates_products",
+    "method": "GET",
+    "path": "/workspace/templates/products",
+    "title": "下载products导入模板",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "原文",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/templates/sku-inventory": {
+    "id": "get_workspace_templates_sku_inventory",
+    "method": "GET",
+    "path": "/workspace/templates/sku-inventory",
+    "title": "下载sku-inventory导入模板",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "原文",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/templates/performance-records": {
+    "id": "get_workspace_templates_performance_records",
+    "method": "GET",
+    "path": "/workspace/templates/performance-records",
+    "title": "下载performance-records导入模板",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "原文",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/templates/platform-mappings": {
+    "id": "get_workspace_templates_platform_mappings",
+    "method": "GET",
+    "path": "/workspace/templates/platform-mappings",
+    "title": "下载platform-mappings导入模板",
+    "roles": [
+      "admin",
+      "operator",
+      "viewer"
+    ],
+    "permission": "imports:read",
+    "origin": "补充",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /workspace/generation-jobs/sweep-timeouts": {
+    "id": "post_workspace_generation_jobs_sweep_timeouts",
+    "method": "POST",
+    "path": "/workspace/generation-jobs/sweep-timeouts",
+    "title": "扫描到期生成任务",
+    "roles": [
+      "admin"
+    ],
+    "permission": "maintenance:run",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "MaintenanceRequest",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /workspace/competitor-monitors/run-due": {
+    "id": "post_workspace_competitor_monitors_run_due",
+    "method": "POST",
+    "path": "/workspace/competitor-monitors/run-due",
+    "title": "运行到期竞品监控",
+    "roles": [
+      "admin"
+    ],
+    "permission": "maintenance:run",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "MaintenanceRequest",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /workspace/demo-data": {
+    "id": "post_workspace_demo_data",
+    "method": "POST",
+    "path": "/workspace/demo-data",
+    "title": "初始化完整演示数据",
+    "roles": [
+      "admin"
+    ],
+    "permission": "demo:initialize",
+    "origin": "原文",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "DemoCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "202",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/jobs/{job_id}": {
+    "id": "get_workspace_jobs_job_id",
+    "method": "GET",
+    "path": "/workspace/jobs/{job_id}",
+    "title": "维护或演示任务详情",
+    "roles": [
+      "admin"
+    ],
+    "permission": "maintenance:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/jobs/{job_id}/events": {
+    "id": "get_workspace_jobs_job_id_events",
+    "method": "GET",
+    "path": "/workspace/jobs/{job_id}/events",
+    "title": "维护或演示任务事件",
+    "roles": [
+      "admin"
+    ],
+    "permission": "maintenance:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "after_sequence",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "description": "after_sequence"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /settings/model-configs": {
+    "id": "get_settings_model_configs",
+    "method": "GET",
+    "path": "/settings/model-configs",
+    "title": "模型配置列表",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "POST /settings/model-configs": {
+    "id": "post_settings_model_configs",
+    "method": "POST",
+    "path": "/settings/model-configs",
+    "title": "创建模型配置",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      }
+    ],
+    "body": "ModelConfigCreate",
+    "concurrency": false,
+    "idempotent": true,
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /settings/model-configs/{config_id}": {
+    "id": "get_settings_model_configs_config_id",
+    "method": "GET",
+    "path": "/settings/model-configs/{config_id}",
+    "title": "模型配置详情",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "config_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /settings/model-configs/{config_id}": {
+    "id": "patch_settings_model_configs_config_id",
+    "method": "PATCH",
+    "path": "/settings/model-configs/{config_id}",
+    "title": "修改模型配置",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "config_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "ModelConfigPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /settings/system": {
+    "id": "get_settings_system",
+    "method": "GET",
+    "path": "/settings/system",
+    "title": "系统参数",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:read",
+    "origin": "补充",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /settings/system": {
+    "id": "patch_settings_system",
+    "method": "PATCH",
+    "path": "/settings/system",
+    "title": "修改系统参数",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "SystemSettingsPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /settings/queue": {
+    "id": "get_settings_queue",
+    "method": "GET",
+    "path": "/settings/queue",
+    "title": "任务队列参数",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:read",
+    "origin": "补充",
+    "parameters": [],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "PATCH /settings/queue": {
+    "id": "patch_settings_queue",
+    "method": "PATCH",
+    "path": "/settings/queue",
+    "title": "修改队列参数",
+    "roles": [
+      "admin"
+    ],
+    "permission": "settings:write",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "业务POST/PATCH必填；同用户+方法+规范路径作用域，UUID。24小时内同键同体重放原响应，异体409；认证与权限仍重新检查。multipart按实际文件SHA256及字段计算摘要。",
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "强ETag，格式为资源version带双引号，例如 \"3\"。缺失428，格式错误400，不匹配412；不得使用通配符。",
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]*\"$"
+        }
+      }
+    ],
+    "body": "QueueSettingsPatch",
+    "concurrency": true,
+    "idempotent": true,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "412",
+      "422",
+      "428",
+      "429",
+      "500",
+      "503"
+    ]
+  },
+  "GET /workspace/audit-logs": {
+    "id": "get_workspace_audit_logs",
+    "method": "GET",
+    "path": "/workspace/audit-logs",
+    "title": "关键操作审计",
+    "roles": [
+      "admin"
+    ],
+    "permission": "maintenance:read",
+    "origin": "补充",
+    "parameters": [
+      {
+        "name": "actor_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "resource_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": "resource_type"
+      },
+      {
+        "name": "resource_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "UUID，服务端生成",
+          "format": "uuid"
+        },
+        "description": "UUID，服务端生成"
+      },
+      {
+        "name": "start_at",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai",
+          "format": "date-time"
+        },
+        "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai"
+      },
+      {
+        "name": "end_at",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai",
+          "format": "date-time"
+        },
+        "description": "RFC 3339 时间，响应统一 UTC Z；展示使用 Asia/Shanghai"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647,
+          "default": 1
+        },
+        "description": "page"
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "page_size"
+      }
+    ],
+    "body": null,
+    "concurrency": false,
+    "idempotent": false,
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "422",
+      "429",
+      "500",
+      "503"
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+import { useState } from 'react'
+import { ArrowRight, Check, Clock3, FileText, Image, Plus, Video } from 'lucide-react'
+import { useProduct } from './product-context'
+import { useCollection, useResource } from '../app/providers'
+import type { Entity } from '../api/types'
+import { ActionButton, EditButton, useActionDefaults } from '../components/actions'
+import { ResourceDetail, ResourceList } from '../components/resources'
+import { Badge, Button, Empty, ErrorMessage, Loading, Pagination, Panel } from '../components/ui'
+import { refOf, text } from '../lib/format'
+
+export function RevisionDialog({row,type,onClose}:{row:Entity;type:string;onClose:()=>void}){
+  const {productId}=useProduct()
+  return <ResourceDetail row={row} title="历史版本" onClose={onClose}><ResourceList title="不可变修订" apiKey="GET /products/{product_id}/resource-revisions" params={{product_id:productId}} query={{resource_type:type,resource_id:row.id}} columns={[{key:'version',numeric:true},{key:'created_at'},{key:'change_reason'}]} detailKey="GET /products/{product_id}/resource-revisions/{revision_id}" detailParam="revision_id"/></ResourceDetail>
+}
+export function DiagnosisTab(){
+  const {productId,round,roundId,writable,product,setTab}=useProduct(),base=useActionDefaults(productId,roundId)
+  const [history,setHistory]=useState<Entity|null>(null)
+  const selected=round?.selected_diagnosis as Entity|undefined
+  return <div className="section-stack"><div className="section-lead"><div><span className="agent-label">分析 Agent</span><h2>先看清商品，再决定怎么表达。</h2><p>诊断保留商品与竞品的输入快照；选定版本后，主图、脚本和标题共用这份判断。</p></div><ActionButton spec={{...base,key:'POST /products/{product_id}/diagnoses/generate',title:'生成商品诊断',onSuccess:()=>setTab('tasks')}} variant="primary" disabled={!writable || product.status!=='active'} title={!roundId?'请先创建运营轮次':!writable?'当前轮次只读':undefined}><Plus size={15}/>生成诊断</ActionButton></div>
+    {selected && <div className="inline-notice"><Check size={16}/>本轮已选定诊断 · {String(selected.id).slice(0,8)} · v{String(selected.version)}<Button variant="ghost" onClick={()=>setTab('main-image')}>开始创意<ArrowRight size={14}/></Button></div>}
+    <ResourceList title="诊断记录" description="定位、人群、痛点、卖点、风险和优化建议都可以编辑保存。" apiKey="GET /products/{product_id}/diagnoses" params={base.params} query={{round_id:roundId}} columns={[{key:'created_at'},{key:'content',label:'商品定位',render:r=><span>{text((r.content as Entity)?.positioning)}</span>},{key:'version',numeric:true}]} detailKey="GET /products/{product_id}/diagnoses/{diagnosis_id}" detailParam="diagnosis_id" rowActions={r=><><Button variant="ghost" onClick={()=>setHistory(r)}><Clock3 size={13}/>版本</Button><EditButton disabled={!writable} spec={{key:'PATCH /products/{product_id}/diagnoses/{diagnosis_id}',params:{product_id:productId,diagnosis_id:r.id},row:r,title:'编辑诊断',context:{productId,roundId}}}/><ActionButton spec={{key:'PATCH /products/{product_id}/rounds/{round_id}',params:{product_id:productId,round_id:roundId},version:round?.version,initial:{selected_diagnosis:refOf(r)},hidden:['name','objective','selected_diagnosis','status','close_remark'],title:'选定本轮诊断',description:`使用诊断 ${text(r.id).slice(0,8)} 的 v${r.version} 版本作为本轮创意依据。`}} disabled={!writable || (selected?.id===r.id && selected?.version===r.version)} variant="ghost"><Check size={14}/>{selected?.id===r.id && selected?.version===r.version?'已选定':'选定'}</ActionButton></>}/>
+    {history && <RevisionDialog row={history} type="diagnosis" onClose={()=>setHistory(null)}/>}
+  </div>
+}
+const creativeInfo={main_image:{title:'主图方案',segment:'main-images',schema:'MainImagePlanRevisionInput',icon:Image,description:'用清楚的画面结构和核心文案，表达商品最值得被看见的卖点。'},video_script:{title:'视频脚本',segment:'video-scripts',schema:'VideoScriptPlanRevisionInput',icon:Video,description:'从开头钩子到镜头分镜、口播和转化引导，把商品故事讲完整。'},title:{title:'标题方案',segment:'titles',schema:'TitlePlanRevisionInput',icon:FileText,description:'以真实商品信息和平台表达要求，形成可以比较、编辑和选择的标题。'}}
+export function CreativeTab({kind}:{kind:keyof typeof creativeInfo}){
+  const {productId,round,roundId,writable,setTab}=useProduct(),base=useActionDefaults(productId,roundId)
+  const info=creativeInfo[kind],diagnosis=round?.selected_diagnosis
+  const system=useResource('GET /settings/system'), models=useCollection('GET /settings/model-configs',{}, {page_size:100})
+  const mediaInitial=(r:Entity):Entity=>{
+    const content=r.content as Entity, capability=kind==='main_image'?'image':'video'
+    const modelId=system.data?.data?.[capability+'_model_config_id']
+    const model=models.data?.data.find(m=>m.id===modelId)
+    const caps=Array.isArray(model?.capabilities)?model.capabilities as Entity[]:[]
+    const sizes=caps.find(c=>c.capability===capability)?.supported_image_sizes as Entity[]|undefined
+    const [rw,rh]=String(content.aspect_ratio).split(':').map(Number)
+    const size=sizes?.find(s=>Number(s.width)*rh===Number(s.height)*rw)
+    return {...base.initial,plan_version:r.version,...(modelId?{model_config_id:modelId}:{}),
+      ...(kind==='main_image'?{count:1,...(size?{width:size.width,height:size.height}:{})}:{duration_sec:content.duration_sec,resolution:'1080p'})}
+  }
+  const [page,setPage]=useState(1),[selected,setSelected]=useState<Entity|null>(null),[history,setHistory]=useState<Entity|null>(null)
+  const result=useCollection('GET /products/{product_id}/creative-plans',base.params,{round_id:roundId,plan_type:kind,page,page_size:12})
+  const stateAction=(r:Entity,status:string)=>({...base,key:'PATCH /products/{product_id}/creative-plans/{creative_plan_id}',params:{...base.params,creative_plan_id:r.id},row:r,schema:info.schema,initial:{status},hidden:['plan_type','title','content','rationale_text','status'],title:status==='selected'?'选用这个方案':'归档方案',description:status==='selected'?'本轮同类型只能选中一个方案；原选中方案将自动改为草稿。':'归档后仍保留历史内容和引用。'})
+  return <div className="section-stack"><div className="section-lead"><div><span className="agent-label">创意 Agent</span><h2>{info.title}</h2><p>{info.description}</p></div><ActionButton spec={{...base,key:`POST /products/{product_id}/creative-plans/${info.segment}/generate`,title:`生成${info.title}`,initial:{...base.initial,...(diagnosis?{diagnosis}:{}),count:3},hidden:[...(base.hidden || []),...(diagnosis?['diagnosis']:[])],onSuccess:()=>setTab('tasks')}} disabled={!writable || !diagnosis} title={!diagnosis?'请先选定本轮诊断':!writable?'当前轮次只读':undefined} variant="primary"><Plus size={15}/>生成方案</ActionButton></div>
+    {!diagnosis && <div className="inline-notice">先在商品诊断中选定一个版本，再生成本轮创意。<Button variant="ghost" onClick={()=>setTab('diagnosis')}>前往诊断<ArrowRight size={13}/></Button></div>}
+    {result.isPending?<Loading rows={4}/>:result.error?<ErrorMessage error={result.error} retry={()=>void result.refetch()}/>:result.data?.data.length?<><div className="creative-grid">{result.data.data.map(r=><article className={`creative-card ${r.status==='selected'?'selected':''}`} key={String(r.id)}><div className="creative-card-top"><Badge value={r.status}/><small>v{String(r.version)}</small></div><h3><button className="row-link" onClick={()=>setSelected(r)}>{text(r.title)}</button></h3><div className="creative-card-content">{kind==='main_image'?<><span className="mini-label">画面结构</span><p>{text((r.content as Entity)?.layout)}</p><span className="mini-label">核心文案</span><blockquote>{text((r.content as Entity)?.core_copy)}</blockquote></>:kind==='video_script'?<><span className="mini-label">开头钩子</span><blockquote>{text((r.content as Entity)?.hook)}</blockquote><p className="muted">{Array.isArray((r.content as Entity)?.shots)?((r.content as Entity).shots as unknown[]).length:'—'} 个分镜 · {text((r.content as Entity)?.duration_sec)} 秒</p></>:<blockquote>{text((r.content as Entity)?.text)}</blockquote>}<p className="creative-rationale">{text(r.rationale_text)}</p></div><div className="creative-card-actions"><Button variant="ghost" onClick={()=>setSelected(r)}>查看详情</Button><Button variant="ghost" onClick={()=>setHistory(r)} aria-label="查看版本"><Clock3 size={14}/></Button><EditButton disabled={!writable} spec={{key:'PATCH /products/{product_id}/creative-plans/{creative_plan_id}',params:{product_id:productId,creative_plan_id:r.id},row:r,schema:info.schema,initial:{status:'draft'},title:`编辑${info.title}`,context:{productId,roundId},description:'修改内容后保存为草稿，确认后请重新选中。'}}/><ActionButton spec={stateAction(r,'selected')} disabled={!writable || r.status==='selected'} variant="ghost"><Check size={14}/>{r.status==='selected'?'已选中':'选用'}</ActionButton></div><div className="creative-generation-actions">{kind!=='title' && <ActionButton spec={{...base,key:`POST /products/{product_id}/creative-plans/{creative_plan_id}/${kind==='main_image'?'images':'videos'}/generate`,params:{product_id:productId,creative_plan_id:r.id},title:kind==='main_image'?'生成图片':'生成视频',initial:mediaInitial(r),description:kind==='main_image'?'GLM-Image 使用文字生成图片，不支持参考图。支持尺寸请查看模型配置；生成后需人工审核。':'CogVideoX-3 支持 5 或 10 秒，提示词最多 512 字。最多两张 JPEG/PNG 首尾帧，每张不超过 5MB；视频关闭水印，需账号已开通对应权限。方形的 1080p 档实际为 1024×1024。',hidden:[...(base.hidden || []),'plan_version'],onSuccess:()=>setTab('tasks')}} disabled={!writable || r.status!=='selected'} title={r.status!=='selected'?'请先选用此方案':undefined}>{kind==='main_image'?<Image size={14}/>:<Video size={14}/>}生成{kind==='main_image'?'图片':'视频'}</ActionButton>}{r.status!=='archived' && <ActionButton spec={stateAction(r,'archived')} variant="ghost" disabled={!writable}>归档</ActionButton>}</div></article>)}</div><Pagination meta={result.data.meta} page={page} onChange={setPage}/></>:<Panel><Empty title={`还没有${info.title}`} description="生成后可以比较多个方向，编辑内容，再选用本轮方案。"/></Panel>}
+    {selected && <ResourceDetail row={selected} title={text(selected.title)} detailKey="GET /products/{product_id}/creative-plans/{creative_plan_id}" params={{product_id:productId,creative_plan_id:selected.id}} onClose={()=>setSelected(null)}/>} {history && <RevisionDialog row={history} type="creative_plan" onClose={()=>setHistory(null)}/>}
+  </div>
+}

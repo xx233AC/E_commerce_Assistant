@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "commerce-assistant-backend"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.161.1", "uvicorn==0.54.0", "SQLAlchemy==2.0.55",
+  "psycopg[binary]==3.3.6", "pydantic==2.14.1", "pydantic-settings==2.16.1",
+  "pwdlib[argon2]==0.3.1", "PyJWT==2.15.1", "alembic==1.20.1",
+  "httpx==0.28.1", "jsonschema==4.26.0", "minio>=7.2,<8", "PyYAML>=6,<7",
+  "Pillow>=11,<14", "python-multipart>=0.0.20", "openpyxl>=3.1,<4",
+  "av>=13,<18",
+]
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*", "scripts*"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
